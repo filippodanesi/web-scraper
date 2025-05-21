@@ -1,6 +1,6 @@
 
 import { ScraperOptions, ScraperResult } from "@/types/scraper";
-import FirecrawlApp, { ScrapeResponse, CrawlResponse } from '@mendable/firecrawl-js';
+import FirecrawlApp, { ScrapeResponse, CrawlResponse, ScrapeFormat } from '@mendable/firecrawl-js';
 
 export class FirecrawlService {
   private static API_KEY_STORAGE_KEY = 'firecrawl_api_key';
@@ -38,20 +38,20 @@ export class FirecrawlService {
         options.excludeDirectories.split(',').map(dir => dir.trim()) : 
         [];
       
-      // Set crawl options
+      // Set crawl options with proper typing
       const crawlOptions = {
         limit: options.maxPages || 10,
         includePaths: includePaths.length > 0 ? includePaths : undefined,
         excludePaths: excludePaths.length > 0 ? excludePaths : undefined,
         scrapeOptions: {
-          formats: ['markdown', 'html']
+          formats: ['markdown', 'html'] as ScrapeFormat[]
         }
       };
       
       console.log("Sending crawl request to Firecrawl with URL:", url, "and options:", crawlOptions);
       
-      // Make the API call
-      const crawlResponse = await firecrawl.crawlUrl(url, crawlOptions) as CrawlResponse;
+      // Make the API call with proper typing
+      const crawlResponse = await firecrawl.crawlUrl(url, crawlOptions);
       
       if (!crawlResponse.success) {
         console.error("Firecrawl API error:", crawlResponse.error);
@@ -63,7 +63,8 @@ export class FirecrawlService {
       // Transform the crawl results to match our application's expected format
       const results: ScraperResult[] = [];
       
-      if (crawlResponse.data && Array.isArray(crawlResponse.data)) {
+      // Handle the crawl response data with proper type checking
+      if (crawlResponse && Array.isArray(crawlResponse.data)) {
         crawlResponse.data.forEach((item: any, index: number) => {
           if (item.metadata && item.markdown) {
             results.push({
@@ -92,7 +93,7 @@ export class FirecrawlService {
       
       // Make a simple request to test the API key validity
       const testResponse = await firecrawl.scrapeUrl('https://example.com', {
-        formats: ['markdown']
+        formats: ['markdown' as ScrapeFormat]
       }) as ScrapeResponse;
       
       return testResponse.success === true;
