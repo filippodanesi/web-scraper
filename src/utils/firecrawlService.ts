@@ -87,7 +87,11 @@ export class FirecrawlService {
       if (crawlResponse && Array.isArray(crawlResponse.data)) {
         crawlResponse.data.forEach((item: any, index: number) => {
           // Get main content from markdown or HTML
-          const content = item.markdown || item.html || '';
+          let content = item.markdown || item.html || '';
+          
+          // Clean the content by removing images and links
+          content = this.cleanContent(content);
+          
           if (item.metadata) {
             results.push({
               url: item.metadata.sourceURL || `${url}/page-${index+1}`,
@@ -123,6 +127,29 @@ export class FirecrawlService {
       console.error('Error testing Firecrawl API key:', error);
       return false;
     }
+  }
+  
+  // New method to clean content by removing images and links
+  private static cleanContent(content: string): string {
+    // Remove markdown images: ![alt text](url)
+    let cleanedContent = content.replace(/!\[.*?\]\(.*?\)/g, '');
+    
+    // Remove HTML images: <img src="..." />
+    cleanedContent = cleanedContent.replace(/<img.*?>/g, '');
+    
+    // Remove markdown links: [text](url)
+    cleanedContent = cleanedContent.replace(/\[(.*?)\]\(.*?\)/g, '$1');
+    
+    // Remove HTML links: <a href="...">text</a>
+    cleanedContent = cleanedContent.replace(/<a.*?href=".*?".*?>(.*?)<\/a>/g, '$1');
+    
+    // Remove image paths in various formats
+    cleanedContent = cleanedContent.replace(/https?:\/\/.*?\.(jpg|jpeg|png|gif|webp|svg)(\?.*?)?/gi, '');
+    
+    // Remove empty lines that might be left after removing content
+    cleanedContent = cleanedContent.replace(/\n\s*\n/g, '\n\n');
+    
+    return cleanedContent;
   }
   
   static downloadAsTextFile(results: ScraperResult[]): void {

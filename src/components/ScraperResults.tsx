@@ -80,7 +80,7 @@ export const ScraperResults = ({ results, isLoading }: ScraperResultsProps) => {
                   <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">
                     <span className="font-medium">URL:</span> {result.url}
                   </div>
-                  <div className="whitespace-pre-line text-gray-700 dark:text-gray-300 mt-3">
+                  <div className="whitespace-pre-line text-gray-700 dark:text-gray-300 mt-3 overflow-auto max-h-[300px]">
                     {result.content.slice(0, 200)}...
                   </div>
                 </div>
