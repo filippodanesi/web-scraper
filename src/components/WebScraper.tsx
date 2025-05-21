@@ -87,7 +87,7 @@ export const WebScraper = () => {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto space-y-6 p-6">
+    <div className="w-full max-w-3xl mx-auto space-y-8">
       <ApiKeySetup />
       <ScraperForm onSubmit={handleSubmit} isLoading={status === "loading"} />
       <ScraperResults 
@@ -96,7 +96,7 @@ export const WebScraper = () => {
       />
       
       {status === "error" && (
-        <div className="bg-gray-50 dark:bg-gray-900 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg mt-6">
+        <div className="bg-transparent text-red-600 dark:text-red-400 mt-6">
           <p className="font-medium">An error occurred during scraping.</p>
           <p className="text-sm mt-1">
             Check your connection and make sure the domain entered is correct.
@@ -105,7 +105,7 @@ export const WebScraper = () => {
       )}
       
       {status === "success" && results.length === 0 && (
-        <div className="bg-gray-50 dark:bg-gray-900 border border-yellow-300 dark:border-yellow-800 text-yellow-700 dark:text-yellow-400 px-4 py-3 rounded-lg mt-6">
+        <div className="bg-transparent text-yellow-600 dark:text-yellow-400 mt-6">
           <p className="font-medium">No results found.</p>
           <p className="text-sm mt-1">
             Try modifying the search parameters or verify that the domain is correct.

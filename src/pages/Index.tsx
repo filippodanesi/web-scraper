@@ -14,9 +14,7 @@ const Index = () => {
           </p>
         </header>
         
-        <div className="bg-white dark:bg-black rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">
-          <WebScraper />
-        </div>
+        <WebScraper />
         
         <footer className="text-center mt-16 text-gray-500 text-sm">
           <p>
