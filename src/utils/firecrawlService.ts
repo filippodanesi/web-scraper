@@ -1,6 +1,25 @@
 
 import { ScraperOptions, ScraperResult } from "@/types/scraper";
-import FirecrawlApp, { ScrapeResponse, CrawlResponse, ScrapeFormat } from '@mendable/firecrawl-js';
+import FirecrawlApp from '@mendable/firecrawl-js';
+
+// Define interfaces for the types we need
+interface ErrorResponse {
+  success: false;
+  error: string;
+}
+
+interface CrawlStatusResponse {
+  success: true;
+  status: string;
+  completed: number;
+  total: number;
+  creditsUsed: number;
+  expiresAt: string;
+  data: any[];
+}
+
+type CrawlResponse = CrawlStatusResponse | ErrorResponse;
+type ScrapeFormat = 'markdown' | 'html' | 'text' | 'json';
 
 export class FirecrawlService {
   private static API_KEY_STORAGE_KEY = 'firecrawl_api_key';
@@ -51,11 +70,11 @@ export class FirecrawlService {
       console.log("Sending crawl request to Firecrawl with URL:", url, "and options:", crawlOptions);
       
       // Make the API call with proper typing
-      const crawlResponse = await firecrawl.crawlUrl(url, crawlOptions);
+      const crawlResponse = await firecrawl.crawlUrl(url, crawlOptions) as CrawlResponse;
       
       if (!crawlResponse.success) {
-        console.error("Firecrawl API error:", crawlResponse.error);
-        throw new Error(`API error: ${crawlResponse.error || "Unknown error"}`);
+        console.error("Firecrawl API error:", (crawlResponse as ErrorResponse).error);
+        throw new Error(`API error: ${(crawlResponse as ErrorResponse).error || "Unknown error"}`);
       }
       
       console.log("Firecrawl crawl response:", crawlResponse);
@@ -94,7 +113,7 @@ export class FirecrawlService {
       // Make a simple request to test the API key validity
       const testResponse = await firecrawl.scrapeUrl('https://example.com', {
         formats: ['markdown' as ScrapeFormat]
-      }) as ScrapeResponse;
+      });
       
       return testResponse.success === true;
     } catch (error) {
