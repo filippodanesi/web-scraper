@@ -44,24 +44,29 @@ export const ScraperResults = ({ results, isLoading }: ScraperResultsProps) => {
 
   return (
     <div className="mt-10 text-left">
-      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full border rounded-lg p-4 bg-white dark:bg-gray-900 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-black dark:text-white">
             Scraping Results ({results.length})
           </h3>
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="p-0 h-7 w-7">
+            <Button variant="outline" size="sm" className="flex items-center gap-2">
               {isOpen ? (
-                <ChevronUp className="h-4 w-4" />
+                <>
+                  <span>Collapse</span>
+                  <ChevronUp className="h-4 w-4" />
+                </>
               ) : (
-                <ChevronDown className="h-4 w-4" />
+                <>
+                  <span>Expand</span>
+                  <ChevronDown className="h-4 w-4" />
+                </>
               )}
-              <span className="sr-only">Toggle</span>
             </Button>
           </CollapsibleTrigger>
         </div>
         
-        <CollapsibleContent>
+        <CollapsibleContent className="space-y-4">
           <Tabs defaultValue="preview">
             <TabsList className="mb-4">
               <TabsTrigger value="preview">Preview</TabsTrigger>
