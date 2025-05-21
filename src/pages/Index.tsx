@@ -20,8 +20,12 @@ const Index = () => {
         
         <footer className="text-center mt-12 text-gray-500 text-sm">
           <p>
-            Note: This is a client-side scraper simulator. <br />
-            For real scraping, a server-side implementation is required.
+            Powered by <a href="https://firecrawl.dev" target="_blank" rel="noopener noreferrer" className="underline">Firecrawl</a>
+          </p>
+          <p className="mt-2">
+            <a href="https://docs.firecrawl.dev" target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 hover:underline">
+              API Documentation
+            </a>
           </p>
         </footer>
       </div>

@@ -1,10 +1,6 @@
-import { ScraperOptions, ScraperResult } from "@/types/scraper";
 
-interface FirecrawlResponse {
-  success: boolean;
-  data?: any[];
-  error?: string;
-}
+import { ScraperOptions, ScraperResult } from "@/types/scraper";
+import FirecrawlApp, { ScrapeResponse, CrawlResponse } from '@mendable/firecrawl-js';
 
 export class FirecrawlService {
   private static API_KEY_STORAGE_KEY = 'firecrawl_api_key';
@@ -21,67 +17,89 @@ export class FirecrawlService {
   static async crawlWebsite(options: ScraperOptions): Promise<ScraperResult[]> {
     console.log("Crawling website with options:", options);
     
-    // For now, we'll simulate the crawling process
-    // In a real implementation, this would make API calls to Firecrawl
-    
-    // Simulate an API delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Create some mock results
-    const results: ScraperResult[] = [];
-    
-    const baseUrl = `https://${options.domain}`;
-    const pagesToCreate = Math.min(options.maxPages || 10, 20); // Limit for demo
-    
-    // Check if we need to filter by directories
-    const includeDirs = options.includeDirectories 
-      ? options.includeDirectories.split(',').map(dir => dir.trim()) 
-      : [];
-    
-    const excludeDirs = options.excludeDirectories
-      ? options.excludeDirectories.split(',').map(dir => dir.trim())
-      : [];
-    
-    // Create mock pages
-    for (let i = 0; i < pagesToCreate; i++) {
-      // Determine page path
-      let pagePath = '';
-      
-      if (includeDirs.length > 0) {
-        // If include directories specified, use one of them
-        const dirIndex = Math.floor(Math.random() * includeDirs.length);
-        pagePath = `/${includeDirs[dirIndex]}/page-${i + 1}`;
-      } else {
-        // Otherwise, create random paths avoiding excluded dirs
-        const possibleSections = ['about', 'products', 'services', 'blog', 'news', 'contact'];
-        const filteredSections = possibleSections.filter(
-          section => !excludeDirs.includes(section)
-        );
-        
-        if (filteredSections.length > 0) {
-          const sectionIndex = Math.floor(Math.random() * filteredSections.length);
-          pagePath = `/${filteredSections[sectionIndex]}/page-${i + 1}`;
-        } else {
-          pagePath = `/page-${i + 1}`;
-        }
-      }
-      
-      // Skip if path contains excluded directory
-      if (excludeDirs.some(dir => pagePath.includes(`/${dir}/`))) {
-        continue;
-      }
-      
-      // Create the result
-      results.push({
-        url: `${baseUrl}${pagePath}`,
-        title: `Page ${i + 1}: ${options.domain}${pagePath}`,
-        content: `This is the content for ${pagePath}. It would contain the actual text scraped from the webpage in a real implementation. The Firecrawl API would extract this text from the actual page content, focusing on the main content area and avoiding navigation, headers, footers, etc.`,
-        timestamp: new Date().toISOString(),
-      });
+    const apiKey = this.getApiKey();
+    if (!apiKey) {
+      throw new Error("API key not found");
     }
     
-    console.log(`Returning ${results.length} mock results`);
-    return results;
+    // Initialize Firecrawl client
+    const firecrawl = new FirecrawlApp({ apiKey });
+    
+    try {
+      // Build URL with the correct format
+      const url = options.domain.startsWith('http') ? options.domain : `https://${options.domain}`;
+      
+      // Prepare include/exclude directories
+      const includePaths = options.includeDirectories ? 
+        options.includeDirectories.split(',').map(dir => dir.trim()) : 
+        [];
+      
+      const excludePaths = options.excludeDirectories ? 
+        options.excludeDirectories.split(',').map(dir => dir.trim()) : 
+        [];
+      
+      // Set crawl options
+      const crawlOptions = {
+        limit: options.maxPages || 10,
+        includePaths: includePaths.length > 0 ? includePaths : undefined,
+        excludePaths: excludePaths.length > 0 ? excludePaths : undefined,
+        scrapeOptions: {
+          formats: ['markdown', 'html']
+        }
+      };
+      
+      console.log("Sending crawl request to Firecrawl with URL:", url, "and options:", crawlOptions);
+      
+      // Make the API call
+      const crawlResponse = await firecrawl.crawlUrl(url, crawlOptions) as CrawlResponse;
+      
+      if (!crawlResponse.success) {
+        console.error("Firecrawl API error:", crawlResponse.error);
+        throw new Error(`API error: ${crawlResponse.error || "Unknown error"}`);
+      }
+      
+      console.log("Firecrawl crawl response:", crawlResponse);
+      
+      // Transform the crawl results to match our application's expected format
+      const results: ScraperResult[] = [];
+      
+      if (crawlResponse.data && Array.isArray(crawlResponse.data)) {
+        crawlResponse.data.forEach((item: any, index: number) => {
+          if (item.metadata && item.markdown) {
+            results.push({
+              url: item.metadata.sourceURL || `${url}/page-${index+1}`,
+              title: item.metadata.title || `Page ${index+1}`,
+              content: item.markdown,
+              timestamp: new Date().toISOString()
+            });
+          }
+        });
+      }
+      
+      console.log(`Processed ${results.length} results from Firecrawl`);
+      return results;
+      
+    } catch (error) {
+      console.error("Error during Firecrawl API call:", error);
+      throw error;
+    }
+  }
+  
+  static async testApiKey(apiKey: string): Promise<boolean> {
+    try {
+      console.log('Testing Firecrawl API key');
+      const firecrawl = new FirecrawlApp({ apiKey });
+      
+      // Make a simple request to test the API key validity
+      const testResponse = await firecrawl.scrapeUrl('https://example.com', {
+        formats: ['markdown']
+      }) as ScrapeResponse;
+      
+      return testResponse.success === true;
+    } catch (error) {
+      console.error('Error testing Firecrawl API key:', error);
+      return false;
+    }
   }
   
   static downloadAsTextFile(results: ScraperResult[]): void {

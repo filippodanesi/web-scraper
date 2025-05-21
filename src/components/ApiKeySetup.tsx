@@ -20,7 +20,7 @@ export const ApiKeySetup = () => {
     setHasStoredKey(!!storedKey);
   }, []);
 
-  const handleSaveKey = () => {
+  const handleSaveKey = async () => {
     if (!apiKey.trim()) {
       toast({
         title: "Error",
@@ -32,18 +32,36 @@ export const ApiKeySetup = () => {
 
     setIsSubmitting(true);
 
-    // In a real implementation, we would verify the API key with Firecrawl
-    setTimeout(() => {
-      FirecrawlService.saveApiKey(apiKey);
-      setHasStoredKey(true);
-      setApiKey("");
-      setIsSubmitting(false);
+    try {
+      // Test API key with Firecrawl
+      const isValid = await FirecrawlService.testApiKey(apiKey);
       
+      if (isValid) {
+        FirecrawlService.saveApiKey(apiKey);
+        setHasStoredKey(true);
+        setApiKey("");
+        
+        toast({
+          title: "Success",
+          description: "Firecrawl API key verified and saved successfully",
+        });
+      } else {
+        toast({
+          title: "Invalid API Key",
+          description: "The provided API key was rejected by Firecrawl",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error verifying API key:", error);
       toast({
-        title: "Success",
-        description: "Firecrawl API key saved successfully",
+        title: "Error",
+        description: "Failed to verify API key with Firecrawl",
+        variant: "destructive",
       });
-    }, 1000);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClearKey = () => {
@@ -106,7 +124,7 @@ export const ApiKeySetup = () => {
             className="border-gray-300 focus:border-black focus:ring-black"
           />
           <p className="text-xs text-gray-500">
-            You can get your API key from the Firecrawl dashboard.
+            You can get your API key from the <a href="https://firecrawl.dev" target="_blank" rel="noopener noreferrer" className="underline">Firecrawl dashboard</a>.
           </p>
         </div>
       </CardContent>
@@ -117,7 +135,7 @@ export const ApiKeySetup = () => {
           disabled={isSubmitting}
           className="w-full bg-black hover:bg-gray-800 text-white"
         >
-          {isSubmitting ? "Saving..." : "Save API Key"}
+          {isSubmitting ? "Verifying..." : "Save API Key"}
         </Button>
       </CardFooter>
     </Card>
