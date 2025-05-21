@@ -22,13 +22,13 @@ export const ScraperForm = ({ onSubmit, isLoading }: ScraperFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validazione
+    // Validation
     if (!domain) {
-      setError("Inserisci un dominio valido");
+      setError("Please enter a valid domain");
       return;
     }
     
-    // Pulisci il dominio da eventuali "http://" o "https://"
+    // Clean the domain from any "http://" or "https://"
     let cleanDomain = domain.trim();
     cleanDomain = cleanDomain.replace(/^https?:\/\//i, "");
     
@@ -42,27 +42,27 @@ export const ScraperForm = ({ onSubmit, isLoading }: ScraperFormProps) => {
   };
 
   return (
-    <Card className="w-full shadow-lg border-scraper-300">
-      <CardHeader className="bg-scraper-100 rounded-t-lg">
-        <CardTitle className="text-scraper-500 text-2xl font-bold">Web Scraper</CardTitle>
+    <Card className="w-full shadow-md border-gray-200">
+      <CardHeader className="bg-gray-50 rounded-t-lg">
+        <CardTitle className="text-black text-2xl font-bold">Web Scraper</CardTitle>
         <CardDescription>
-          Inserisci i dettagli del sito web di cui desideri fare lo scraping
+          Enter the details of the website you want to scrape
         </CardDescription>
       </CardHeader>
       
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4 pt-6">
           <div className="space-y-2">
-            <Label htmlFor="domain" className="text-scraper-500 font-medium">
-              Dominio (es. uk.triumph.com)
+            <Label htmlFor="domain" className="text-gray-700 font-medium">
+              Domain (e.g. uk.triumph.com)
             </Label>
             <Input
               id="domain"
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
-              placeholder="Inserisci il dominio"
+              placeholder="Enter domain"
               className={cn(
-                "border-scraper-300 focus:border-scraper-400 focus:ring-scraper-400",
+                "border-gray-300 focus:border-black focus:ring-black",
                 error && "border-red-500"
               )}
             />
@@ -70,37 +70,37 @@ export const ScraperForm = ({ onSubmit, isLoading }: ScraperFormProps) => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="includeDirectories" className="text-scraper-500 font-medium">
-              Directory da includere (opzionale)
+            <Label htmlFor="includeDirectories" className="text-gray-700 font-medium">
+              Directories to include (optional)
             </Label>
             <Input
               id="includeDirectories"
               value={includeDirectories}
               onChange={(e) => setIncludeDirectories(e.target.value)}
-              placeholder="es. blog, news (separati da virgole)"
-              className="border-scraper-300 focus:border-scraper-400 focus:ring-scraper-400"
+              placeholder="e.g. blog, news (comma separated)"
+              className="border-gray-300 focus:border-black focus:ring-black"
             />
             <p className="text-xs text-gray-500">
-              Lascia vuoto per eseguire lo scraping dell'intero dominio
+              Leave empty to scrape the entire domain
             </p>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="excludeDirectories" className="text-scraper-500 font-medium">
-              Directory da escludere (opzionale)
+            <Label htmlFor="excludeDirectories" className="text-gray-700 font-medium">
+              Directories to exclude (optional)
             </Label>
             <Input
               id="excludeDirectories"
               value={excludeDirectories}
               onChange={(e) => setExcludeDirectories(e.target.value)}
-              placeholder="es. admin, cart (separati da virgole)"
-              className="border-scraper-300 focus:border-scraper-400 focus:ring-scraper-400"
+              placeholder="e.g. admin, cart (comma separated)"
+              className="border-gray-300 focus:border-black focus:ring-black"
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="maxPages" className="text-scraper-500 font-medium">
-              Numero massimo di pagine
+            <Label htmlFor="maxPages" className="text-gray-700 font-medium">
+              Maximum number of pages
             </Label>
             <Input
               id="maxPages"
@@ -109,7 +109,7 @@ export const ScraperForm = ({ onSubmit, isLoading }: ScraperFormProps) => {
               max={100}
               value={maxPages}
               onChange={(e) => setMaxPages(parseInt(e.target.value, 10) || 10)}
-              className="border-scraper-300 focus:border-scraper-400 focus:ring-scraper-400"
+              className="border-gray-300 focus:border-black focus:ring-black"
             />
           </div>
         </CardContent>
@@ -118,9 +118,9 @@ export const ScraperForm = ({ onSubmit, isLoading }: ScraperFormProps) => {
           <Button 
             type="submit" 
             disabled={isLoading}
-            className="w-full bg-scraper-500 hover:bg-scraper-400 text-white"
+            className="w-full bg-black hover:bg-gray-800 text-white"
           >
-            {isLoading ? "Elaborazione in corso..." : "Inizia Scraping"}
+            {isLoading ? "Processing..." : "Start Scraping"}
           </Button>
         </CardFooter>
       </form>

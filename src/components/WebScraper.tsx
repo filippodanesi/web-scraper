@@ -1,45 +1,84 @@
 
-import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { ScraperForm } from "./ScraperForm";
 import { ScraperResults } from "./ScraperResults";
-import { ScraperService } from "@/utils/scraperService";
+import { ApiKeySetup } from "./ApiKeySetup";
+import { FirecrawlService } from "@/utils/firecrawlService";
 import { ScraperOptions, ScraperResult, ScraperStatus } from "@/types/scraper";
 
 export const WebScraper = () => {
   const { toast } = useToast();
   const [status, setStatus] = useState<ScraperStatus>("idle");
   const [results, setResults] = useState<ScraperResult[]>([]);
+  const [hasApiKey, setHasApiKey] = useState(false);
+
+  useEffect(() => {
+    // Check if API key is configured
+    const apiKey = FirecrawlService.getApiKey();
+    setHasApiKey(!!apiKey);
+  }, []);
+
+  // Check API key status when component mounts or after changes
+  useEffect(() => {
+    const checkApiKey = () => {
+      const apiKey = FirecrawlService.getApiKey();
+      setHasApiKey(!!apiKey);
+    };
+
+    // Set up event listener for storage changes (in case API key is set in another tab)
+    window.addEventListener('storage', checkApiKey);
+    
+    // Initial check
+    checkApiKey();
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('storage', checkApiKey);
+    };
+  }, []);
 
   const handleSubmit = async (options: ScraperOptions) => {
+    // First check if API key is configured
+    const apiKey = FirecrawlService.getApiKey();
+    if (!apiKey) {
+      toast({
+        title: "API Key Required",
+        description: "Please set your Firecrawl API key before scraping.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setStatus("loading");
     
     try {
-      console.log("Avvio scraping con opzioni:", options);
+      console.log("Starting scraping with options:", options);
       
-      const scrapedResults = await ScraperService.scrapeWebsite(options);
+      // Use Firecrawl service instead of the mock service
+      const scrapedResults = await FirecrawlService.crawlWebsite(options);
       setResults(scrapedResults);
       
       if (scrapedResults.length === 0) {
         toast({
-          title: "Nessun risultato trovato",
-          description: "Lo scraping non ha trovato contenuti. Prova a modificare i parametri.",
+          title: "No results found",
+          description: "The scraping found no content. Try modifying the parameters.",
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Scraping completato",
-          description: `Trovati ${scrapedResults.length} risultati.`,
+          title: "Scraping completed",
+          description: `Found ${scrapedResults.length} results.`,
         });
       }
       
       setStatus("success");
     } catch (error) {
-      console.error("Errore durante lo scraping:", error);
+      console.error("Error during scraping:", error);
       
       toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante lo scraping. Riprova più tardi.",
+        title: "Error",
+        description: "An error occurred during scraping. Please try again later.",
         variant: "destructive",
       });
       
@@ -49,6 +88,7 @@ export const WebScraper = () => {
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
+      <ApiKeySetup />
       <ScraperForm onSubmit={handleSubmit} isLoading={status === "loading"} />
       <ScraperResults 
         results={results} 
@@ -57,18 +97,18 @@ export const WebScraper = () => {
       
       {status === "error" && (
         <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg mt-6">
-          <p className="font-medium">Si è verificato un errore durante lo scraping.</p>
+          <p className="font-medium">An error occurred during scraping.</p>
           <p className="text-sm mt-1">
-            Verifica la connessione e assicurati che il dominio inserito sia corretto.
+            Check your connection and make sure the domain entered is correct.
           </p>
         </div>
       )}
       
       {status === "success" && results.length === 0 && (
         <div className="bg-yellow-50 border border-yellow-300 text-yellow-700 px-4 py-3 rounded-lg mt-6">
-          <p className="font-medium">Nessun risultato trovato.</p>
+          <p className="font-medium">No results found.</p>
           <p className="text-sm mt-1">
-            Prova a modificare i parametri di ricerca o verifica che il dominio sia corretto.
+            Try modifying the search parameters or verify that the domain is correct.
           </p>
         </div>
       )}
