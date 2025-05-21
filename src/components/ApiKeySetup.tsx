@@ -124,7 +124,7 @@ export const ApiKeySetup = () => {
             className="border-gray-300 focus:border-black focus:ring-black"
           />
           <p className="text-xs text-gray-500">
-            You can get your API key from the <a href="https://firecrawl.dev" target="_blank" rel="noopener noreferrer" className="underline">Firecrawl dashboard</a>.
+            You can get your API key from the <a href="https://firecrawl.dev/dashboard" target="_blank" rel="noopener noreferrer" className="underline">Firecrawl dashboard</a>.
           </p>
         </div>
       </CardContent>
