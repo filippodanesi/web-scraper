@@ -10,7 +10,7 @@ const Index = () => {
             Web Content Scraper
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
-            Extract text content from web pages with a minimalist approach.
+            Extract and analyze text content from any website. Simply enter a URL and receive clean, formatted text from web pages for research, analysis, or content aggregation.
           </p>
         </header>
         
