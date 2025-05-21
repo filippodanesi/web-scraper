@@ -1,8 +1,7 @@
 
 # Web Content Scraper
 
-A minimalist web application that extracts and analyzes text content from websites.
-
+Extract and analyze text content from any website.
 ## Project Overview
 
 This web application allows users to extract clean, formatted text content from any website by simply entering a URL. It's useful for research, analysis, or content aggregation without the clutter of website styling and formatting.
@@ -45,17 +44,3 @@ This project uses the Firecrawl API for web scraping. You'll need to:
 - `npm run dev` - Start the development server
 - `npm run build` - Build the project for production
 - `npm run preview` - Preview the production build locally
-
-## Deployment
-
-You can deploy this project using Lovable:
-
-1. Navigate to [Lovable](https://lovable.dev/projects/829b17de-6fd4-4da5-8809-d08249345790)
-2. Click on Share -> Publish
-
-## Custom Domain
-
-To connect a custom domain to your project:
-1. Navigate to Project > Settings > Domains in Lovable
-2. Click "Connect Domain"
-3. Follow the instructions in [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
