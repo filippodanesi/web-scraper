@@ -20,7 +20,7 @@ interface CrawlStatusResponse {
 
 type CrawlResponse = CrawlStatusResponse | ErrorResponse;
 // Update ScrapeFormat to only include formats actually supported by Firecrawl
-type ScrapeFormat = 'markdown' | 'html' | 'json' | 'rawHtml' | 'content' | 'links' | 'screenshot' | 'screenshot@fullPage' | 'extract' | 'changeTracking';
+type ScrapeFormat = 'markdown' | 'html' | 'json' | 'rawHtml' | 'links' | 'screenshot' | 'screenshot@fullPage' | 'extract' | 'changeTracking';
 
 export class FirecrawlService {
   private static API_KEY_STORAGE_KEY = 'firecrawl_api_key';
@@ -64,7 +64,7 @@ export class FirecrawlService {
         includePaths: includePaths.length > 0 ? includePaths : undefined,
         excludePaths: excludePaths.length > 0 ? excludePaths : undefined,
         scrapeOptions: {
-          formats: ['content', 'markdown'] as ScrapeFormat[]
+          formats: ['markdown', 'html'] as ScrapeFormat[]
         }
       };
       
@@ -86,8 +86,8 @@ export class FirecrawlService {
       // Handle the crawl response data with proper type checking
       if (crawlResponse && Array.isArray(crawlResponse.data)) {
         crawlResponse.data.forEach((item: any, index: number) => {
-          // Preferisci il formato 'content' se disponibile, altrimenti usa 'markdown'
-          const content = item.content || item.markdown || '';
+          // Get main content from markdown or HTML
+          const content = item.markdown || item.html || '';
           if (item.metadata) {
             results.push({
               url: item.metadata.sourceURL || `${url}/page-${index+1}`,
@@ -115,7 +115,7 @@ export class FirecrawlService {
       
       // Make a simple request to test the API key validity
       const testResponse = await firecrawl.scrapeUrl('https://example.com', {
-        formats: ['content' as ScrapeFormat]
+        formats: ['markdown' as ScrapeFormat]
       });
       
       return testResponse.success === true;
