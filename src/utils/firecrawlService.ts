@@ -19,7 +19,8 @@ interface CrawlStatusResponse {
 }
 
 type CrawlResponse = CrawlStatusResponse | ErrorResponse;
-type ScrapeFormat = 'markdown' | 'html' | 'text' | 'json';
+// Update ScrapeFormat to only include formats actually supported by Firecrawl
+type ScrapeFormat = 'markdown' | 'html' | 'json' | 'rawHtml' | 'content' | 'links' | 'screenshot' | 'screenshot@fullPage' | 'extract' | 'changeTracking';
 
 export class FirecrawlService {
   private static API_KEY_STORAGE_KEY = 'firecrawl_api_key';
